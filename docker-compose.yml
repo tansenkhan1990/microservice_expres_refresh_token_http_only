@@ -1,0 +1,31 @@
+version: '3.8'
+
+services:
+  auth-service:
+    build: ./auth-service
+    ports:
+      - "5000:5000"
+    environment:
+      SECRET_KEY: "supersecretkey"
+      REFRESH_SECRET_KEY: "refreshsecretkey"
+
+  user-service:
+    build: ./user-service
+    ports:
+      - "5001:5001"
+    environment:
+      SECRET_KEY: "supersecretkey"
+    depends_on:
+      - auth-service
+
+  api-gateway:
+    build: ./api-gateway
+    ports:
+      - "8080:8080"
+    environment:
+      SECRET_KEY: "supersecretkey"
+      AUTH_SERVICE_URL: "http://auth-service:5000"
+      USER_SERVICE_URL: "http://user-service:5001"
+    depends_on:
+      - auth-service
+      - user-service
